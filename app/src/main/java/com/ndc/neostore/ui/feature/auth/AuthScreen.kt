@@ -1,7 +1,6 @@
 package com.ndc.neostore.ui.feature.auth
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.ndc.neostore.ui.feature.auth.screen.LoginScreen
