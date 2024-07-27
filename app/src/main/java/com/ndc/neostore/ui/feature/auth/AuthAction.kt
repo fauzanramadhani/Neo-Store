@@ -1,5 +1,6 @@
 package com.ndc.neostore.ui.feature.auth
 
+import android.content.Intent
 import com.ndc.neostore.ui.component.textfield.TextFieldState
 
 sealed interface AuthAction {
@@ -23,6 +24,10 @@ sealed interface AuthAction {
     ) : AuthAction
     data class OnLoginPasswordStateChange(
         val state: TextFieldState
+    ) : AuthAction
+    data object OnLoginBasic : AuthAction
+    data class OnHandleLoginWithGoogle(
+        val intent: Intent
     ) : AuthAction
 
 
@@ -51,4 +56,5 @@ sealed interface AuthAction {
     data class OnRegisterPasswordConfirmationVisibilityChange(
         val visible: Boolean
     ) : AuthAction
+    data object OnRegister : AuthAction
 }
