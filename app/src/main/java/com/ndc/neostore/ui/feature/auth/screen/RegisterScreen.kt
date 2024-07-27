@@ -51,8 +51,6 @@ fun RegisterScreen(
     val typography = MaterialTheme.typography
     val focusManager = LocalFocusManager.current
 
-    DialogLoading(visible = state.loadingState)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -250,7 +248,7 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
             ) {
-                // TODO
+                action(AuthAction.OnRegister)
             }
         }
     }

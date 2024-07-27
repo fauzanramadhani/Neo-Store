@@ -10,6 +10,9 @@ import androidx.navigation.compose.composable
 import com.ndc.neostore.ui.feature.auth.AuthEffect
 import com.ndc.neostore.ui.feature.auth.AuthScreen
 import com.ndc.neostore.ui.feature.auth.AuthViewModel
+import com.ndc.neostore.ui.feature.dashboard.DashboardEffect
+import com.ndc.neostore.ui.feature.dashboard.DashboardScreen
+import com.ndc.neostore.ui.feature.dashboard.DashboardViewModel
 
 @Composable
 fun SetupNavHost(
@@ -28,6 +31,21 @@ fun SetupNavHost(
             val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = AuthEffect.Empty)
 
             AuthScreen(
+                navHostController = navHostController,
+                state = state,
+                effect = effect,
+                action = viewModel::onAction,
+            )
+        }
+
+        composable(
+            route = NavRoute.DashboardScreen.route
+        ) {
+            val viewModel = hiltViewModel<DashboardViewModel>()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = DashboardEffect.Empty)
+
+            DashboardScreen(
                 navHostController = navHostController,
                 state = state,
                 effect = effect,

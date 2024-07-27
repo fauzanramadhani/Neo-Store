@@ -2,6 +2,8 @@ package com.ndc.neostore.ui.feature.auth.screen
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,7 +38,6 @@ import com.ndc.neostore.R
 import com.ndc.neostore.ui.component.button.OutlinedButton
 import com.ndc.neostore.ui.component.button.OutlinedIconButton
 import com.ndc.neostore.ui.component.button.PrimaryButton
-import com.ndc.neostore.ui.component.dialog.DialogLoading
 import com.ndc.neostore.ui.component.textfield.PasswordTextField
 import com.ndc.neostore.ui.component.textfield.PrimaryTextField
 import com.ndc.neostore.ui.component.textfield.TextFieldState
@@ -57,17 +58,15 @@ fun LoginScreen(
     val color = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
     val focusManager = LocalFocusManager.current
-//    val googleSignInLauncher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.StartActivityForResult(), onResult = { result ->
-//            result.data?.let {
-//                loginViewModel.handleLoginWithGoogle(it)
-//            }
-//        }
-//    )
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(), onResult = { result ->
+            result.data?.let {
+                action(AuthAction.OnHandleLoginWithGoogle(it))
+            }
+        }
+    )
 
     WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-
-    DialogLoading(visible = state.loadingState)
 
     BackHandler {
         (ctx as Activity).finish()
@@ -203,7 +202,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .weight(1f)
                 ) {
-                    // TODO
+                    action(AuthAction.OnLoginBasic)
                 }
             }
             Row(
@@ -242,7 +241,10 @@ fun LoginScreen(
                     .padding(horizontal = 12.dp)
                     .fillMaxWidth()
             ) {
-                // googleSignInLauncher.launch(loginViewModel.loginWithGoogleIntent())
+                state.gso?.let {
+                    googleSignInLauncher.launch(it)
+                }
+
             }
         }
     }

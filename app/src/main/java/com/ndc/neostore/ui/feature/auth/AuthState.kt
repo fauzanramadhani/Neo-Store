@@ -1,10 +1,12 @@
 package com.ndc.neostore.ui.feature.auth
 
+import android.content.Intent
 import com.ndc.neostore.ui.component.textfield.TextFieldState
 
 data class AuthState(
     val currentScreen: Int = 0,
     val loadingState: Boolean = false,
+    val gso: Intent? = null,
     // Login Screen
     val loginEmailValue: String = "",
     val loginEmailState: TextFieldState = TextFieldState.Empty,
