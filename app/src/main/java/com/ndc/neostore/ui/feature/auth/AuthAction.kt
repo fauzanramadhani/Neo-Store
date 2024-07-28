@@ -8,6 +8,7 @@ sealed interface AuthAction {
     data class OnScreenChange(
         val screen: Int
     ) : AuthAction
+    data object OnCheckPersonalization : AuthAction
 
     // Login Screen
     data class OnLoginEmailValueChange(
@@ -57,4 +58,17 @@ sealed interface AuthAction {
         val visible: Boolean
     ) : AuthAction
     data object OnRegister : AuthAction
+
+    // Personalization Screen
+    data class OnPersonalizationNameValueChange(
+        val value: String
+    ) : AuthAction
+    data class OnPersonalizationNameStateChange(
+        val state: TextFieldState
+    ) : AuthAction
+    data object OnPersonalizationSaved : AuthAction
+    data class OnPersonalizationLogoutDialogVisibilityChange(
+        val visible: Boolean
+    ) : AuthAction
+    data object OnPersonalizationLogout : AuthAction
 }

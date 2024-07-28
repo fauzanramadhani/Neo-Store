@@ -4,9 +4,12 @@ import android.content.Intent
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.ndc.neostore.base.BaseViewModel
+import com.ndc.neostore.domain.CheckPersonalizationUseCase
 import com.ndc.neostore.domain.HandleLoginWithGoogleUseCase
 import com.ndc.neostore.domain.LoginBasicUseCase
+import com.ndc.neostore.domain.LogoutUseCase
 import com.ndc.neostore.domain.RegisterUseCase
+import com.ndc.neostore.domain.SetUserNameUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -18,6 +21,9 @@ class AuthViewModel @Inject constructor(
     private val loginBasicUseCase: LoginBasicUseCase,
     private val registerUseCase: RegisterUseCase,
     private val googleSignInClient: GoogleSignInClient,
+    private val checkPersonalizationUseCase: CheckPersonalizationUseCase,
+    private val setUserNameUseCase: SetUserNameUseCase,
+    private val logoutUseCase: LogoutUseCase,
 ) : BaseViewModel<AuthState, AuthAction, AuthEffect>(AuthState()) {
 
     init {
@@ -67,17 +73,76 @@ class AuthViewModel @Inject constructor(
             is AuthAction.OnHandleLoginWithGoogle -> handleLoginWithGoogle(action.intent)
             AuthAction.OnLoginBasic -> loginBasic()
             AuthAction.OnRegister -> register()
+            is AuthAction.OnPersonalizationNameStateChange -> updateState {
+                copy(
+                    personalizationNameState = action.state
+                )
+            }
+
+            is AuthAction.OnPersonalizationNameValueChange -> updateState {
+                copy(
+                    personalizationNameValue = action.value
+                )
+            }
+
+            AuthAction.OnCheckPersonalization -> {
+                checkPersonalization()
+            }
+
+            AuthAction.OnPersonalizationSaved -> setUserName()
+            is AuthAction.OnPersonalizationLogoutDialogVisibilityChange -> updateState {
+                copy(
+                    personalizationLogoutDialogVisible = action.visible
+                )
+            }
+
+            AuthAction.OnPersonalizationLogout -> logout()
         }
+    }
+
+    private fun logout() = viewModelScope.launch {
+        logoutUseCase.invoke()
+        updateState {
+            copy(
+                currentScreen = 0,
+                personalizationLogoutDialogVisible = false
+            )
+        }
+    }
+
+    private fun setUserName() = viewModelScope.launch {
+        updateState { copy(loadingState = true) }
+        setUserNameUseCase.invoke(
+            name = state.value.personalizationNameValue,
+            onSuccess = {
+                onSuccessAuth()
+            },
+            onFailure = {
+                onShowToast(it)
+            }
+        )
+    }
+
+    private fun checkPersonalization() = viewModelScope.launch {
+        checkPersonalizationUseCase.invoke(
+            onSuccess = {
+                if (it) onSuccessAuth()
+                else updateState { copy(currentScreen = 2) }
+                updateState { copy(loadingState = false) }
+            },
+            onFailure = {
+                onShowToast(it)
+            }
+        )
     }
 
     private fun handleLoginWithGoogle(intent: Intent) = viewModelScope.launch {
         updateState { copy(loadingState = true) }
         try {
             handleLoginWithGoogleUseCase.invoke(intent).addOnSuccessListener {
-                sendEffect(AuthEffect.OnSuccessAuth)
-                updateState { copy(loadingState = false) }
+                checkPersonalization()
             }.addOnFailureListener {
-                sendEffect(AuthEffect.OnShowToast(it.message.toString()))
+                onShowToast(it.message.toString())
                 updateState { copy(loadingState = false) }
             }
         } catch (e: Exception) {
@@ -86,9 +151,6 @@ class AuthViewModel @Inject constructor(
                 else -> sendEffect(AuthEffect.OnShowToast(e.message.toString()))
             }
             updateState { copy(loadingState = false) }
-        } finally {
-            delay(3000)
-            sendEffect(AuthEffect.Empty)
         }
     }
 
@@ -98,14 +160,11 @@ class AuthViewModel @Inject constructor(
             state.value.loginEmailValue,
             state.value.loginPasswordValue
         ).addOnSuccessListener { _ ->
-            sendEffect(AuthEffect.OnSuccessAuth)
-            updateState { copy(loadingState = false) }
+            checkPersonalization()
         }.addOnFailureListener {
-            sendEffect(AuthEffect.OnShowToast(it.message.toString()))
+            onShowToast(it.message.toString())
             updateState { copy(loadingState = false) }
         }
-        delay(3000)
-        sendEffect(AuthEffect.Empty)
     }
 
     private fun register() = viewModelScope.launch {
@@ -114,12 +173,28 @@ class AuthViewModel @Inject constructor(
             state.value.registerEmailValue,
             state.value.registerPasswordValue
         ).addOnSuccessListener { _ ->
-            updateState { copy(loadingState = false) }
-            sendEffect(AuthEffect.OnSuccessAuth)
+            updateState {
+                copy(
+                    loadingState = false,
+                    currentScreen = 2
+                )
+            }
+
         }.addOnFailureListener {
             updateState { copy(loadingState = false) }
-            sendEffect(AuthEffect.OnShowToast(it.message.toString()))
+            onShowToast(it.message.toString())
         }
+
+    }
+
+    private fun onSuccessAuth() = viewModelScope.launch {
+        sendEffect(AuthEffect.OnSuccessAuth)
+        delay(3000)
+        sendEffect(AuthEffect.Empty)
+    }
+
+    private fun onShowToast(message: String) = viewModelScope.launch {
+        sendEffect(AuthEffect.OnShowToast(message))
         delay(3000)
         sendEffect(AuthEffect.Empty)
     }
