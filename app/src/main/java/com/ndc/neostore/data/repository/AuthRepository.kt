@@ -8,7 +8,6 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import javax.inject.Inject
@@ -38,8 +37,6 @@ class AuthRepository @Inject constructor(
 
         return auth.signInWithCredential(credential)
     }
-
-    fun getFirebaseUser(): FirebaseUser? = auth.currentUser
 
     fun logout() {
         auth.signOut()

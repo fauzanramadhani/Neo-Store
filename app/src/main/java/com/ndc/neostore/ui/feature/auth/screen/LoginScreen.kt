@@ -42,13 +42,11 @@ import com.ndc.neostore.ui.component.textfield.PasswordTextField
 import com.ndc.neostore.ui.component.textfield.PrimaryTextField
 import com.ndc.neostore.ui.component.textfield.TextFieldState
 import com.ndc.neostore.ui.feature.auth.AuthAction
-import com.ndc.neostore.ui.feature.auth.AuthEffect
 import com.ndc.neostore.ui.feature.auth.AuthState
 
 @Composable
 fun LoginScreen(
     state: AuthState,
-    effect: AuthEffect,
     action: (AuthAction) -> Unit,
 ) {
     val ctx = LocalContext.current
