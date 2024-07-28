@@ -8,6 +8,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.ndc.neostore.ui.component.dialog.DialogLoading
 import com.ndc.neostore.ui.feature.auth.screen.LoginScreen
+import com.ndc.neostore.ui.feature.auth.screen.PersonalizationScreen
 import com.ndc.neostore.ui.feature.auth.screen.RegisterScreen
 import com.ndc.neostore.ui.navigation.NavRoute
 import com.ndc.neostore.utils.Toast
@@ -25,30 +26,35 @@ fun AuthScreen(
         launchSingleTop = true
     }
 
-    if (Firebase.auth.currentUser?.uid != null) {
-        navigateToDashboard()
-    } else {
-        LaunchedEffect(effect) {
-            when (effect) {
-                AuthEffect.Empty -> {}
-                is AuthEffect.OnShowToast -> Toast(ctx, effect.message).short()
-                AuthEffect.OnSuccessAuth -> navigateToDashboard()
-            }
+    LaunchedEffect(effect) {
+        when (effect) {
+            AuthEffect.Empty -> {}
+            is AuthEffect.OnShowToast -> Toast(ctx, effect.message).short()
+            AuthEffect.OnSuccessAuth -> navigateToDashboard()
         }
+    }
 
-        DialogLoading(visible = state.loadingState)
+    DialogLoading(visible = state.loadingState)
+
+    if (Firebase.auth.currentUser?.uid != null) {
+        action(AuthAction.OnCheckPersonalization)
+        when (state.currentScreen) {
+            2 -> PersonalizationScreen(
+                action = action,
+                state = state,
+            )
+        }
+    } else {
 
         when (state.currentScreen) {
             0 -> LoginScreen(
                 action = action,
                 state = state,
-                effect = effect
             )
 
             1 -> RegisterScreen(
                 action = action,
                 state = state,
-                effect = effect
             )
         }
     }
