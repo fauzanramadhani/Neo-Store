@@ -6,7 +6,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.ndc.neostore.ui.component.dialog.DialogConfirmation
 import com.ndc.neostore.ui.component.dialog.DialogLoading
 import com.ndc.neostore.ui.feature.auth.screen.LoginScreen
 import com.ndc.neostore.ui.feature.auth.screen.PersonalizationScreen
