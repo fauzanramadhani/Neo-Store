@@ -63,6 +63,8 @@ class UserRepository @Inject constructor() {
         val initData = mapOf(
             "uid" to (auth.currentUser?.uid ?: ""),
             "name" to name,
+            "email" to (auth.currentUser?.email ?: ""),
+            "balance" to 3000000
         )
         databaseRef
             .child("users")

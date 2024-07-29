@@ -7,6 +7,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ndc.neostore.ui.feature.addproduct.AddProductEffect
+import com.ndc.neostore.ui.feature.addproduct.AddProductScreen
+import com.ndc.neostore.ui.feature.addproduct.AddProductViewModel
 import com.ndc.neostore.ui.feature.auth.AuthEffect
 import com.ndc.neostore.ui.feature.auth.AuthScreen
 import com.ndc.neostore.ui.feature.auth.AuthViewModel
@@ -46,6 +49,21 @@ fun SetupNavHost(
             val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = DashboardEffect.Empty)
 
             DashboardScreen(
+                navHostController = navHostController,
+                state = state,
+                effect = effect,
+                action = viewModel::onAction,
+            )
+        }
+
+        composable(
+            route = NavRoute.AddProductScreen.route
+        ) {
+            val viewModel = hiltViewModel<AddProductViewModel>()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = AddProductEffect.Empty)
+
+            AddProductScreen(
                 navHostController = navHostController,
                 state = state,
                 effect = effect,

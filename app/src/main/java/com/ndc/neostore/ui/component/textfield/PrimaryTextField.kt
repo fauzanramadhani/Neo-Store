@@ -19,6 +19,7 @@ fun PrimaryTextField(
     textFieldState: TextFieldState = TextFieldState.Empty,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
+    maxLines: Int = 1,
     leadingIcon: @Composable (() -> Unit)? = null,
     onClearValue: () -> Unit = {},
     value: String = "",
@@ -72,6 +73,7 @@ fun PrimaryTextField(
         supportingText = when (textFieldState) {
             TextFieldState.Empty -> null
             is TextFieldState.Error -> textFieldState.errorMessage
-        }
+        },
+        maxLines = maxLines
     )
 }

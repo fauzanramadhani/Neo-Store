@@ -15,6 +15,13 @@ class DashboardViewModel @Inject constructor(
     override fun onAction(action: DashboardAction) {
         when (action) {
             DashboardAction.OnLogout -> logout()
+            is DashboardAction.OnScreenChange -> updateState { copy(currentScreen = action.screen) }
+            is DashboardAction.OnBottomSheetVisibilityChange -> updateState {
+                copy(
+                    homeBottomSheetType = action.type,
+                    bottomSheetVisible = action.visible
+                )
+            }
         }
     }
 
