@@ -2,6 +2,7 @@ package com.ndc.neostore.ui.feature.dashboard
 
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
+import com.ndc.neostore.domain.GetCurrentUserUseCase
 import com.ndc.neostore.domain.GetMarketProductUseCase
 import com.ndc.neostore.domain.GetMyProductUseCase
 import com.ndc.neostore.domain.LogoutUseCase
@@ -14,12 +15,14 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase,
     private val getMyProductUseCase: GetMyProductUseCase,
-    private val getMarketProductUseCase: GetMarketProductUseCase
+    private val getMarketProductUseCase: GetMarketProductUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase
 ) : BaseViewModel<DashboardState, DashboardAction, DashboardEffect>(DashboardState()) {
 
     init {
         getMyProduct()
         getMarketProduct()
+        getCurrentUser()
     }
 
     override fun onAction(action: DashboardAction) {
@@ -56,6 +59,17 @@ class DashboardViewModel @Inject constructor(
                 updatedList.clear()
                 updatedList.addAll(it)
                 updateState { copy(marketProductDtoList = updatedList) }
+            },
+            onFailure = {
+                onError(it)
+            }
+        )
+    }
+
+    private fun getCurrentUser() = viewModelScope.launch {
+        getCurrentUserUseCase.invoke(
+            onSuccess = {
+                updateState { copy(userDto = it) }
             },
             onFailure = {
                 onError(it)

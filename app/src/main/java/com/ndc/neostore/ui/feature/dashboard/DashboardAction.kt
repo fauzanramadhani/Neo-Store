@@ -7,6 +7,6 @@ sealed interface DashboardAction {
     ) : DashboardAction
     data class OnBottomSheetVisibilityChange(
         val visible: Boolean,
-        val type: HomeBottomSheetType
+        val type: HomeBottomSheetType = HomeBottomSheetType.NotReady
     ) : DashboardAction
 }

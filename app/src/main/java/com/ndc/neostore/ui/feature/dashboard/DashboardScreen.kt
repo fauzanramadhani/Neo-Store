@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,15 +37,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.ndc.neostore.R
 import com.ndc.neostore.ui.component.bottomsheet.DetailMarketProductBottomSheet
 import com.ndc.neostore.ui.component.bottomsheet.NotReadyBottomSheet
+import com.ndc.neostore.ui.component.card.WalletCard
 import com.ndc.neostore.ui.component.textfield.PrimaryTextField
+import com.ndc.neostore.ui.feature.dashboard.screen.AccountScreen
 import com.ndc.neostore.ui.feature.dashboard.screen.MarketScreen
 import com.ndc.neostore.ui.feature.dashboard.screen.MyStoreScreen
 import com.ndc.neostore.ui.navigation.NavRoute
@@ -87,6 +93,7 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
     val marketListState = rememberLazyGridState()
     val myStoreListState = rememberLazyListState()
+    val accountListState = rememberLazyListState()
 
     BackHandler {
         (ctx as Activity).finish()
@@ -139,10 +146,7 @@ fun DashboardScreen(
                     sellerName = data.marketProductDto.sellerName,
                 ) {
                     action(
-                        DashboardAction.OnBottomSheetVisibilityChange(
-                            visible = false,
-                            type = HomeBottomSheetType.NotReady
-                        )
+                        DashboardAction.OnBottomSheetVisibilityChange(visible = false)
                     )
                     navHostController.navigate(NavRoute.DetailCheckOutScreen.navigateWithId(data.marketProductDto.productId))
                 }
@@ -158,61 +162,114 @@ fun DashboardScreen(
             .background(color = color.background)
             .safeDrawingPadding(),
         topBar = {
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                    .background(color.primary)
-                    .fillMaxWidth()
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 16.dp,
-                        bottom = 24.dp
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                PrimaryTextField(
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_search),
+            when (state.currentScreen) {
+                2 -> Column(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                        .background(color.primary)
+                        .fillMaxWidth()
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 24.dp
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            model = state.userDto.profileUrl.ifEmpty { "https://cdn-icons-png.flaticon.com/512/5951/5951752.png" },
                             contentDescription = "",
-                            tint = color.onSurfaceVariant,
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(id = R.drawable.error_image),
                             modifier = Modifier
+                                .clip(CircleShape)
                                 .size(24.dp)
                         )
-                    },
-                    placeholder = if (state.currentScreen == 0) "Cari toko atau produk" else "Cari produk saya",
-                    enabled = false,
-                    modifier = Modifier
-                        .weight(0.8f)
-                        .clickable {
-                            action(
-                                DashboardAction.OnBottomSheetVisibilityChange(
-                                    visible = true,
-                                    type = HomeBottomSheetType.NotReady
-                                )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = state.userDto.name,
+                                style = typography.titleMedium,
+                                color = color.onPrimary,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = state.userDto.email,
+                                style = typography.bodySmall,
+                                color = color.onPrimary,
+                                maxLines = 1
                             )
                         }
-                )
-                Icon(
-                    painter = painterResource(
-                        id = if (state.currentScreen == 0) R.drawable.ic_chat_fill else R.drawable.ic_notification
-                    ),
-                    contentDescription = "",
-                    tint = color.onPrimary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .size(36.dp)
-                        .clickable {
-                            action(
-                                DashboardAction.OnBottomSheetVisibilityChange(
-                                    visible = true,
-                                    type = HomeBottomSheetType.NotReady
-                                )
-                            )
+                    }
+                    WalletCard(
+                        balance = state.userDto.balance,
+                        onTopUpClicked = {
+                            action(DashboardAction.OnBottomSheetVisibilityChange(visible = true))
                         }
-                )
+                    )
+                }
+
+                else -> Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+                        .background(color.primary)
+                        .fillMaxWidth()
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 24.dp
+                        ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PrimaryTextField(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_search),
+                                contentDescription = "",
+                                tint = color.onSurfaceVariant,
+                                modifier = Modifier
+                                    .size(24.dp)
+                            )
+                        },
+                        placeholder = if (state.currentScreen == 0) "Cari toko atau produk" else "Cari produk saya",
+                        enabled = false,
+                        modifier = Modifier
+                            .weight(0.8f)
+                            .clickable {
+                                action(
+                                    DashboardAction.OnBottomSheetVisibilityChange(
+                                        visible = true,
+                                        type = HomeBottomSheetType.NotReady
+                                    )
+                                )
+                            }
+                    )
+                    Icon(
+                        painter = painterResource(
+                            id = if (state.currentScreen == 0) R.drawable.ic_chat_fill else R.drawable.ic_notification
+                        ),
+                        contentDescription = "",
+                        tint = color.onPrimary,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .size(36.dp)
+                            .clickable {
+                                action(
+                                    DashboardAction.OnBottomSheetVisibilityChange(
+                                        visible = true,
+                                        type = HomeBottomSheetType.NotReady
+                                    )
+                                )
+                            }
+                    )
+                }
             }
         },
         floatingActionButton = {
@@ -263,6 +320,13 @@ fun DashboardScreen(
                 paddingValues = paddingValues,
                 state = state,
                 action = action
+            )
+
+            2 -> AccountScreen(
+                paddingValues = paddingValues,
+                listState = accountListState,
+                state = state,
+                action = action,
             )
         }
     }
