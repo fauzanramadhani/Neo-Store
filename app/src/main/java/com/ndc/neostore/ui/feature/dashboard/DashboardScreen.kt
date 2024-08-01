@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,11 +41,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.ndc.neostore.R
+import com.ndc.neostore.ui.component.bottomsheet.DetailMarketProductBottomSheet
 import com.ndc.neostore.ui.component.bottomsheet.NotReadyBottomSheet
 import com.ndc.neostore.ui.component.textfield.PrimaryTextField
 import com.ndc.neostore.ui.feature.dashboard.screen.MarketScreen
 import com.ndc.neostore.ui.feature.dashboard.screen.MyStoreScreen
 import com.ndc.neostore.ui.navigation.NavRoute
+import com.ndc.neostore.utils.Toast
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,6 +98,8 @@ fun DashboardScreen(
             DashboardEffect.OnLogout -> navHostController.navigate(NavRoute.AuthScreen.route) {
                 launchSingleTop = true
             }
+
+            is DashboardEffect.OnError -> Toast(ctx, effect.message).short()
         }
     }
 
@@ -119,10 +124,22 @@ fun DashboardScreen(
                 topStart = 8.dp,
                 topEnd = 8.dp
             ),
-            containerColor = color.background
+            containerColor = color.background,
+            dragHandle = null,
         ) {
-            when (state.homeBottomSheetType) {
+            when (val data = state.homeBottomSheetType) {
                 HomeBottomSheetType.NotReady -> NotReadyBottomSheet()
+                is HomeBottomSheetType.MarketProductDetail -> DetailMarketProductBottomSheet(
+                    productImageUrl = data.marketProductDto.productImageUrl,
+                    productPrice = data.marketProductDto.productPrice,
+                    productStock = data.marketProductDto.productStock,
+                    productName = data.marketProductDto.productName,
+                    productDescription = data.marketProductDto.productDescription,
+                    sellerProfileUrl = data.marketProductDto.sellerProfileUrl,
+                    sellerName = data.marketProductDto.sellerName,
+                ) {
+                    navHostController.navigate(NavRoute.DetailCheckOutScreen.navigateWithId(data.marketProductDto.productId))
+                }
             }
         }
     }
@@ -131,8 +148,9 @@ fun DashboardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = color.primary)
-            .safeDrawingPadding()
-            .background(color = color.onBackground),
+            .statusBarsPadding()
+            .background(color = color.background)
+            .safeDrawingPadding(),
         topBar = {
             Row(
                 modifier = Modifier

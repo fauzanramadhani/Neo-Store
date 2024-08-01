@@ -1,7 +1,10 @@
 package com.ndc.neostore.ui.feature.dashboard
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
+import com.ndc.neostore.domain.GetMyProductUseCase
+import com.ndc.neostore.domain.GetMarketProductUseCase
 import com.ndc.neostore.domain.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -10,8 +13,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val getMyProductUseCase: GetMyProductUseCase,
+    private val getMarketProductUseCase: GetMarketProductUseCase
 ) : BaseViewModel<DashboardState, DashboardAction, DashboardEffect>(DashboardState()) {
+
+    init {
+        getMyProduct()
+        getMarketProduct()
+    }
+
     override fun onAction(action: DashboardAction) {
         when (action) {
             DashboardAction.OnLogout -> logout()
@@ -25,10 +36,44 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    private fun getMyProduct() = viewModelScope.launch {
+        getMyProductUseCase.invoke(
+            onSuccess = {
+                val updatedList = state.value.myProductList.toMutableList()
+                updatedList.clear()
+                updatedList.addAll(it)
+                updateState { copy(myProductList = updatedList) }
+            },
+            onFailure = {
+                onError(it)
+            }
+        )
+    }
+
+    private fun getMarketProduct() = viewModelScope.launch {
+        getMarketProductUseCase.invoke(
+            onSuccess = {
+                val updatedList = state.value.marketProductDtoList.toMutableList()
+                updatedList.clear()
+                updatedList.addAll(it)
+                updateState { copy(marketProductDtoList = updatedList) }
+            },
+            onFailure = {
+                onError(it)
+            }
+        )
+    }
+
     private fun logout() = viewModelScope.launch {
         logoutUseCase.invoke()
         sendEffect(DashboardEffect.OnLogout)
         delay(3000)
+        sendEffect(DashboardEffect.Empty)
+    }
+
+    private fun onError(message: String) = viewModelScope.launch {
+        sendEffect(DashboardEffect.OnError(message))
+        delay(1000)
         sendEffect(DashboardEffect.Empty)
     }
 

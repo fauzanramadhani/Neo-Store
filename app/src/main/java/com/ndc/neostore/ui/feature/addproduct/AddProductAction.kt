@@ -18,4 +18,5 @@ sealed interface AddProductAction {
     data class OnProductStockValueChange(
         val value: String
     ) : AddProductAction
+    data object OnAddProduct : AddProductAction
 }

@@ -6,7 +6,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
-import com.ndc.neostore.data.source.network.firebase.dto.User
+import com.ndc.neostore.data.source.network.firebase.dto.UserDto
 import javax.inject.Inject
 
 class UserRepository @Inject constructor() {
@@ -15,7 +15,7 @@ class UserRepository @Inject constructor() {
 
     fun getUser(
         uid: String = auth.currentUser?.uid ?: "",
-        onSuccess: (User) -> Unit,
+        onSuccess: (UserDto) -> Unit,
         onFailure: (String) -> Unit,
     ) {
         databaseRef
@@ -23,8 +23,8 @@ class UserRepository @Inject constructor() {
             .child(uid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val user = snapshot.getValue(User::class.java)
-                    if (user != null) onSuccess(user)
+                    val userDto = snapshot.getValue(UserDto::class.java)
+                    if (userDto != null) onSuccess(userDto)
                     else onFailure("Data not found")
                 }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -54,13 +55,13 @@ fun MyProductCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .weight(0.3f),
+                .size(48.dp),
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier
-                .weight(0.7f)
+                .weight(1f)
         ) {
             Column(
                 modifier = Modifier
@@ -75,13 +76,13 @@ fun MyProductCard(
                     minLines = 2
                 )
                 Text(
-                    text = stock.toString(),
+                    text = "Stok: ${if (stock >= 1) stock else "Habis"} ",
                     style = typography.bodySmall,
                     color = color.onPrimaryContainer,
                     maxLines = 1
                 )
                 Text(
-                    text = price.toCurrency(),
+                    text = "Harga ${price.toCurrency()}",
                     style = typography.bodySmall,
                     color = color.onPrimaryContainer,
                     maxLines = 1

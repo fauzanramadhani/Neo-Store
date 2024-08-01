@@ -1,5 +1,6 @@
 package com.ndc.neostore.ui.component.card
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,10 +54,6 @@ fun MarketCard(
 ) {
     val color = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
-    val localDensity = LocalDensity.current
-    var imageHeight by remember {
-        mutableStateOf(12.dp)
-    }
 
     Box(
         modifier = modifier
@@ -75,15 +72,12 @@ fun MarketCard(
             error = painterResource(id = R.drawable.error_image),
             modifier = Modifier
                 .height(158.dp)
-                .onGloballyPositioned { coordinates ->
-                    imageHeight = with(localDensity) { coordinates.size.height.toDp() }
-                }
         )
         Column(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .padding(
-                    top = imageHeight - 8.dp,
+                    top = 150.dp,
                 ),
         ) {
             Column(
@@ -99,7 +93,7 @@ fun MarketCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     AsyncImage(
-                        model = sellerImage,
+                        model = sellerImage.ifEmpty { "https://cdn-icons-png.flaticon.com/512/5951/5951752.png" },
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
                         error = painterResource(id = R.drawable.error_image),

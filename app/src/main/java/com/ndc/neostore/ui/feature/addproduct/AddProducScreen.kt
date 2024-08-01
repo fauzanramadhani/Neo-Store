@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +46,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.ndc.neostore.R
 import com.ndc.neostore.ui.component.button.PrimaryButton
+import com.ndc.neostore.ui.component.dialog.DialogLoading
 import com.ndc.neostore.ui.component.textfield.PrimaryTextField
 import com.ndc.neostore.ui.component.textfield.TextFieldState
 import com.ndc.neostore.ui.component.topbar.TopBarSecondary
@@ -77,6 +80,15 @@ fun AddProductScreen(
         }
     }
 
+    LaunchedEffect(state) {
+        when (effect) {
+            AddProductEffect.Empty -> {}
+            AddProductEffect.OnSuccessAddProduct -> navHostController.navigateUp()
+        }
+    }
+
+    DialogLoading(visible = state.loadingState)
+
     Scaffold(
         topBar = {
             TopBarSecondary(
@@ -88,8 +100,8 @@ fun AddProductScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = color.primary)
-            .safeDrawingPadding()
-            .background(color = color.onBackground)
+            .statusBarsPadding()
+            .background(color = color.background)
     ) { paddingValues ->
 
         Column(
@@ -309,9 +321,9 @@ fun AddProductScreen(
                     text = "Tambah",
                     enabled = productImageUri != null && productNameValue.isNotEmpty()
                             && productDescriptionValue.isNotEmpty() && productPriceValue.isNotEmpty()
-                            && productStockValue.isNotEmpty()
+                            && productStockValue.isNotEmpty() && !loadingState
                 ) {
-
+                    action(AddProductAction.OnAddProduct)
                 }
             }
         }

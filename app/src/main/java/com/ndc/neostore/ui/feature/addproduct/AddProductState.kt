@@ -9,4 +9,5 @@ data class AddProductState(
     val productDescriptionValue: String = "",
     val productPriceValue: String = "",
     val productStockValue: String = "",
+    val loadingState: Boolean = false,
 )

@@ -5,8 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.ndc.neostore.ui.feature.addproduct.AddProductEffect
 import com.ndc.neostore.ui.feature.addproduct.AddProductScreen
 import com.ndc.neostore.ui.feature.addproduct.AddProductViewModel
@@ -16,6 +18,9 @@ import com.ndc.neostore.ui.feature.auth.AuthViewModel
 import com.ndc.neostore.ui.feature.dashboard.DashboardEffect
 import com.ndc.neostore.ui.feature.dashboard.DashboardScreen
 import com.ndc.neostore.ui.feature.dashboard.DashboardViewModel
+import com.ndc.neostore.ui.feature.detailcheckout.DetailCheckoutEffect
+import com.ndc.neostore.ui.feature.detailcheckout.DetailCheckoutScreen
+import com.ndc.neostore.ui.feature.detailcheckout.DetailCheckoutViewModel
 
 @Composable
 fun SetupNavHost(
@@ -68,6 +73,28 @@ fun SetupNavHost(
                 state = state,
                 effect = effect,
                 action = viewModel::onAction,
+            )
+        }
+
+        composable(
+            route = NavRoute.DetailCheckOutScreen.route,
+            arguments = listOf(
+                navArgument(keyA) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val viewModel = hiltViewModel<DetailCheckoutViewModel>()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = DetailCheckoutEffect.Empty)
+            val getProductId = it.arguments?.getString(keyA) ?: ""
+
+            DetailCheckoutScreen(
+                navHostController = navHostController,
+                state = state,
+                effect = effect,
+                action = viewModel::onAction,
+                productId = getProductId
             )
         }
     }

@@ -1,5 +1,11 @@
 package com.ndc.neostore.ui.feature.dashboard
 
-enum class HomeBottomSheetType {
-    NotReady
+import com.ndc.neostore.data.source.network.firebase.dto.MarketProductDto
+
+
+sealed interface HomeBottomSheetType {
+    data object NotReady : HomeBottomSheetType
+    data class MarketProductDetail(
+        val marketProductDto: MarketProductDto
+    ) : HomeBottomSheetType
 }
