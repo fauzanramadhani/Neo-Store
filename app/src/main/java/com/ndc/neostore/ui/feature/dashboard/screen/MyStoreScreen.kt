@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import com.ndc.neostore.ui.component.card.MyProductCard
 import com.ndc.neostore.ui.feature.dashboard.DashboardAction
 import com.ndc.neostore.ui.feature.dashboard.DashboardState
-import com.ndc.neostore.utils.toCurrency
 
 @Composable
 fun MyStoreScreen(

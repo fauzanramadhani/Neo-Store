@@ -1,10 +1,9 @@
 package com.ndc.neostore.ui.feature.dashboard
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
-import com.ndc.neostore.domain.GetMyProductUseCase
 import com.ndc.neostore.domain.GetMarketProductUseCase
+import com.ndc.neostore.domain.GetMyProductUseCase
 import com.ndc.neostore.domain.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
