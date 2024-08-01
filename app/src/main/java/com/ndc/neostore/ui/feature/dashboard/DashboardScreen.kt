@@ -138,6 +138,12 @@ fun DashboardScreen(
                     sellerProfileUrl = data.marketProductDto.sellerProfileUrl,
                     sellerName = data.marketProductDto.sellerName,
                 ) {
+                    action(
+                        DashboardAction.OnBottomSheetVisibilityChange(
+                            visible = false,
+                            type = HomeBottomSheetType.NotReady
+                        )
+                    )
                     navHostController.navigate(NavRoute.DetailCheckOutScreen.navigateWithId(data.marketProductDto.productId))
                 }
             }

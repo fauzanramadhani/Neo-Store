@@ -1,7 +1,9 @@
 package com.ndc.neostore.ui.feature.detailcheckout
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
+import com.ndc.neostore.domain.CreateProductUseCase
 import com.ndc.neostore.domain.GetMarketProductByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -10,7 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailCheckoutViewModel @Inject constructor(
-    private val getMarketProductByIdUseCase: GetMarketProductByIdUseCase
+    private val getMarketProductByIdUseCase: GetMarketProductByIdUseCase,
+    private val createProductUseCase: CreateProductUseCase
 ) : BaseViewModel<DetailCheckoutState, DetailCheckoutAction, DetailCheckoutEffect>(
     DetailCheckoutState()
 ) {
@@ -44,13 +47,32 @@ class DetailCheckoutViewModel @Inject constructor(
         )
     }
 
+    private fun createOrder() = viewModelScope.launch {
+        val marketProductDto = state.value.marketProductDto
+
+        updateState { copy(loadingState = true) }
+
+        createProductUseCase.invoke(
+            sellerUid = marketProductDto.sellerUid,
+            productId = marketProductDto.productId,
+            productName = marketProductDto.productName,
+            productPrice = marketProductDto.productPrice,
+            orderAmount = state.value.buyAmount,
+            adminFee = state.value.adminFee,
+            onSuccess = {
+                Log.e("DetailCheckVm", "Create order successfully")
+                updateState { copy(loadingState = false) }
+            },
+            onFailure = {
+                onError(it)
+                updateState { copy(loadingState = false) }
+            }
+        )
+    }
+
     private fun onError(message: String) = viewModelScope.launch {
         sendEffect(DetailCheckoutEffect.OnShowToast(message))
         delay(1000)
         sendEffect(DetailCheckoutEffect.Empty)
-    }
-
-    private fun createOrder() = viewModelScope.launch {
-
     }
 }
