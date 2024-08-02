@@ -328,6 +328,7 @@ fun EditProductScreen(
                             && productDescriptionValue.isNotEmpty() && productPriceValue.isNotEmpty()
                             && productStockValue.isNotEmpty() && !loadingState && !state.isSame()
                 ) {
+                    focusManager.clearFocus(true)
                     action(EditProductAction.OnEditProduct)
                 }
             }

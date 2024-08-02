@@ -85,6 +85,7 @@ class EditProductViewModel @Inject constructor(
     }
 
     private fun onSuccessEditProduct() = viewModelScope.launch {
+        updateState { copy(loadingState = false) }
         sendEffect(EditProductEffect.OnSuccessEditProduct)
         delay(1000)
         sendEffect(EditProductEffect.Empty)

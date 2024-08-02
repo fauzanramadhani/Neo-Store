@@ -21,9 +21,7 @@ class EditProductByIdUseCase @Inject constructor(
                 onSuccess = {
                     productRepository.editProductById(
                         updatedProduct = productDto.copy(productImageUrl = it),
-                        onSuccess = {
-                            onSuccess()
-                        },
+                        onSuccess = onSuccess,
                         onFailure = onFailure
                     )
                 },
@@ -32,9 +30,7 @@ class EditProductByIdUseCase @Inject constructor(
         } else {
             productRepository.editProductById(
                 updatedProduct = productDto.copy(productImageUrl = productImage.toString()),
-                onSuccess = {
-                    onSuccess()
-                },
+                onSuccess = onSuccess,
                 onFailure = onFailure
             )
         }

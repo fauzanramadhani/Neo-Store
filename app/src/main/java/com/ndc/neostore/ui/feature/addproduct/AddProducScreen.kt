@@ -322,6 +322,7 @@ fun AddProductScreen(
                             && productDescriptionValue.isNotEmpty() && productPriceValue.isNotEmpty()
                             && productStockValue.isNotEmpty() && !loadingState
                 ) {
+                    focusManager.clearFocus(true)
                     action(AddProductAction.OnAddProduct)
                 }
             }
