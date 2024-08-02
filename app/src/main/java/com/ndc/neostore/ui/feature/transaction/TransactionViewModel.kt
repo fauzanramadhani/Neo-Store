@@ -1,6 +1,5 @@
 package com.ndc.neostore.ui.feature.transaction
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
 import com.ndc.neostore.domain.GetMyPurchaseOrderUseCase
@@ -14,7 +13,7 @@ import javax.inject.Inject
 class TransactionViewModel @Inject constructor(
     private val getMyPurchaseOrderUseCase: GetMyPurchaseOrderUseCase,
     private val getMySalesOrderUseCase: GetMySalesOrderUseCase
-): BaseViewModel<TransactionState, TransactionAction, TransactionEffect>(
+) : BaseViewModel<TransactionState, TransactionAction, TransactionEffect>(
     TransactionState()
 ) {
     init {

@@ -2,7 +2,6 @@ package com.ndc.neostore.domain
 
 import com.ndc.neostore.data.repository.OrderRepository
 import com.ndc.neostore.data.source.network.firebase.dto.MyPurchaseOrderDto
-import com.ndc.neostore.data.source.network.firebase.dto.OrderDto
 import javax.inject.Inject
 
 class GetMyPurchaseOrderUseCase @Inject constructor(

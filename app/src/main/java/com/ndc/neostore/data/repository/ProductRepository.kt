@@ -1,7 +1,6 @@
 package com.ndc.neostore.data.repository
 
 import android.net.Uri
-import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -221,7 +220,8 @@ class ProductRepository @Inject constructor() {
                         .child(productDto.sellerUid)
                         .get()
                         .addOnCompleteListener { userSnapshot ->
-                            val userDto = userSnapshot.result.getValue(UserDto::class.java) ?: UserDto()
+                            val userDto =
+                                userSnapshot.result.getValue(UserDto::class.java) ?: UserDto()
                             val marketProductDto = MarketProductDto(
                                 productId = productDto.productId,
                                 sellerUid = productDto.sellerUid,

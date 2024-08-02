@@ -1,6 +1,5 @@
 package com.ndc.neostore.ui.feature.detailcheckout
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
 import com.ndc.neostore.domain.CreateProductUseCase
