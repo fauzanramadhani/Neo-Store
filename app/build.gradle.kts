@@ -90,4 +90,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.0.0")
     // Firebase Realtime
     implementation("com.google.firebase:firebase-database")
+    // Firebase Storage
+    implementation("com.google.firebase:firebase-storage:21.0.0")
+    // Compose Coil
+    implementation("io.coil-kt:coil-compose:2.7.0")
 }
