@@ -247,4 +247,35 @@ class ProductRepository @Inject constructor() {
 
             })
     }
+
+    fun getProductById(
+        productId: String,
+        onSuccess: (ProductDto) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("product")
+            .child(productId).get()
+            .addOnSuccessListener { dataSnapshot ->
+                val product = dataSnapshot.getValue(ProductDto::class.java) ?: ProductDto()
+                onSuccess(product)
+            }.addOnFailureListener { exception ->
+                onFailure(exception.message.toString())
+            }
+    }
+
+    fun editProductById(
+        updatedProduct: ProductDto,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("product")
+            .child(updatedProduct.productId).setValue(updatedProduct)
+            .addOnSuccessListener {
+                onSuccess()
+            }.addOnFailureListener { exception ->
+                onFailure(exception.message ?: "Unknown error occurred")
+            }
+    }
 }

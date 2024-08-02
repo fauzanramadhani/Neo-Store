@@ -3,7 +3,6 @@ package com.ndc.neostore.ui.feature.addproduct
 import android.net.Uri
 
 data class AddProductState(
-    val test: String = "",
     val productImageUri: Uri? = null,
     val productNameValue: String = "",
     val productDescriptionValue: String = "",

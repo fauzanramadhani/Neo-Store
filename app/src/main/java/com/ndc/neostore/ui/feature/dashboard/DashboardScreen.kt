@@ -316,6 +316,7 @@ fun DashboardScreen(
             )
 
             1 -> MyStoreScreen(
+                navHostController = navHostController,
                 listState = myStoreListState,
                 paddingValues = paddingValues,
                 state = state,

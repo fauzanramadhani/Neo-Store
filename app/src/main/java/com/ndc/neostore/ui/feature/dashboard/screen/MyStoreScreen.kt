@@ -8,12 +8,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.ndc.neostore.ui.component.card.MyProductCard
 import com.ndc.neostore.ui.feature.dashboard.DashboardAction
 import com.ndc.neostore.ui.feature.dashboard.DashboardState
+import com.ndc.neostore.ui.navigation.NavRoute
 
 @Composable
 fun MyStoreScreen(
+    navHostController: NavHostController,
     paddingValues: PaddingValues,
     listState: LazyListState,
     state: DashboardState,
@@ -44,7 +47,9 @@ fun MyStoreScreen(
                 stock = it.productStock,
                 price = it.productPrice
             ) {
-                // TODO: Edit product
+                navHostController.navigate(NavRoute.EditProductScreen.navigateWithId(it.productId)) {
+                    launchSingleTop = true
+                }
             }
         }
     }
