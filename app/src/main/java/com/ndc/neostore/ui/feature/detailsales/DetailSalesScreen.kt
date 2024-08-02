@@ -1,4 +1,4 @@
-package com.ndc.neostore.ui.feature.detailpurchase
+package com.ndc.neostore.ui.feature.detailsales
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -43,11 +43,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailPurchaseScreen(
+fun DetailSalesScreen(
     navHostController: NavHostController,
-    state: DetailPurchaseState,
-    effect: DetailPurchaseEffect,
-    action: (DetailPurchaseAction) -> Unit,
+    state: DetailSalesState,
+    effect: DetailSalesEffect,
+    action: (DetailSalesAction) -> Unit,
     orderId: String = ""
 ) {
     val ctx = LocalContext.current
@@ -61,13 +61,13 @@ fun DetailPurchaseScreen(
     )
 
     LaunchedEffect(orderId) {
-        action(DetailPurchaseAction.OnGetMyPurchaseOrderById(orderId))
+        action(DetailSalesAction.OnGetMySalesOrderById(orderId))
     }
 
     LaunchedEffect(effect) {
         when (effect) {
-            DetailPurchaseEffect.Empty -> {}
-            is DetailPurchaseEffect.OnShowToast -> Toast(ctx, effect.message).short()
+            DetailSalesEffect.Empty -> {}
+            is DetailSalesEffect.OnShowToast -> Toast(ctx, effect.message).short()
         }
     }
 
@@ -80,7 +80,7 @@ fun DetailPurchaseScreen(
                     bottomSheetState.hide()
                 }.invokeOnCompletion {
                     if (!bottomSheetState.isVisible) {
-                        action(DetailPurchaseAction.OnBottomSheetVisibilityChange(false))
+                        action(DetailSalesAction.OnBottomSheetVisibilityChange(false))
                     }
                 }
             },
@@ -99,7 +99,7 @@ fun DetailPurchaseScreen(
     Scaffold(
         topBar = {
             TopBarSecondary(
-                title = "Rincian Pembelian"
+                title = "Rincian Penjualan"
             ) {
                 navHostController.navigateUp()
             }
@@ -127,19 +127,19 @@ fun DetailPurchaseScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "Toko",
+                    text = "Pembeli",
                     style = typography.bodySmall,
                     color = color.secondary
                 )
                 Spacer(modifier = Modifier.padding(bottom = 4.dp))
                 Text(
-                    text = state.mySalesOrderDto.sellerName,
+                    text = state.mySalesOrderDto.buyerName,
                     style = typography.bodyMedium,
                     color = color.onBackground
                 )
                 Spacer(modifier = Modifier.padding(bottom = 8.dp))
                 PrimaryIconButton(
-                    text = "Hubungi Penjual",
+                    text = "Hubungi Pembeli",
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_chat),
@@ -149,21 +149,7 @@ fun DetailPurchaseScreen(
                         )
                     }
                 ) {
-                    action(DetailPurchaseAction.OnBottomSheetVisibilityChange(true))
-                }
-                Spacer(modifier = Modifier.padding(bottom = 8.dp))
-                PrimaryIconButton(
-                    text = "Kunjungi Toko",
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_store_light),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(18.dp)
-                        )
-                    }
-                ) {
-                    action(DetailPurchaseAction.OnBottomSheetVisibilityChange(true))
+                    action(DetailSalesAction.OnBottomSheetVisibilityChange(true))
                 }
             }
             HorizontalDivider(
@@ -333,12 +319,26 @@ fun DetailPurchaseScreen(
                     color = color.onBackground
                 )
             }
-
-            when (state.mySalesOrderDto.orderStatus) {
-                OrderStatus.Dibayar.name -> Column(
+            if (state.mySalesOrderDto.orderStatus == OrderStatus.Dibayar.name) {
+                PrimaryIconButton(
+                    text = "Proses Pesanan",
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_done_circle),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(18.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                ) {
+                    action(DetailSalesAction.OnProcessOrder)
+                }
+                Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
                 ) {
                     PrimaryIconButton(
                         text = "Batalkan",
@@ -351,65 +351,13 @@ fun DetailPurchaseScreen(
                             )
                         }
                     ) {
-                        action(DetailPurchaseAction.OnCancelOrder)
+                        action(DetailSalesAction.OnCancelOrder)
                     }
                     SupportText(
                         text = "Dengan melakukan pembatalan, " +
-                                "maka seluruh dana akan dikembalikan ke saldo Neo Pay Anda."
+                                "maka seluruh dana akan dikembalikan kepada pembeli" +
+                                " dan stok akan dikembalikan ke produk Anda."
                     )
-                }
-
-                OrderStatus.Diproses.name -> {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
-                    ) {
-                        PrimaryIconButton(
-                            text = "Konfirmasi",
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_done_circle),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                )
-                            }
-                        ) {
-                            action(DetailPurchaseAction.OnConfirmOrder)
-                        }
-                        SupportText(
-                            text = "Dengan melakukan konfirmasi, " +
-                                    "uang akan di cairkan kepada penjual. " +
-                                    "Konfirmasi akan dilakukan secara otomatis " +
-                                    "jika anda tidak melakukannya dalam 3 hari."
-                        )
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
-                    ) {
-                        PrimaryIconButton(
-                            text = "Ajukan Pengembalian",
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_done_circle),
-                                    contentDescription = "",
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                )
-                            }
-                        ) {
-                            action(DetailPurchaseAction.OnBottomSheetVisibilityChange(true))
-                        }
-                        SupportText(
-                            text = "Dengan mengajukan pengembalian," +
-                                    " anda akan dibuatkan ruang diskusi bersama " +
-                                    "dengan penjual dan admin Neo Store. Kemudian admin " +
-                                    "akan memutuskan penyetujuan pengembalian."
-                        )
-                    }
                 }
             }
         }

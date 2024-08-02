@@ -14,13 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.ndc.neostore.ui.component.card.TransactionCard
 import com.ndc.neostore.ui.component.shimmer.shimmerBrush
 import com.ndc.neostore.ui.feature.transaction.TransactionAction
 import com.ndc.neostore.ui.feature.transaction.TransactionState
+import com.ndc.neostore.ui.navigation.NavRoute
 
 @Composable
 fun PurchaseScreen(
+    navHostController: NavHostController,
     listState: LazyListState,
     state: TransactionState,
     action: (TransactionAction) -> Unit,
@@ -53,7 +56,15 @@ fun PurchaseScreen(
                     amount = myPurchaseOrderDto.orderAmount,
                     totalPrice = (myPurchaseOrderDto.productPrice * myPurchaseOrderDto.orderAmount) + myPurchaseOrderDto.adminFee,
                     status = myPurchaseOrderDto.orderStatus
-                )
+                ) {
+                    navHostController.navigate(
+                        NavRoute.DetailPurchaseScreen.navigateWithId(
+                            myPurchaseOrderDto.orderId
+                        )
+                    ) {
+                        launchSingleTop = true
+                    }
+                }
             }
         }
 

@@ -122,12 +122,14 @@ fun TransactionScreen(
             ) { index ->
                 when (index) {
                     0 -> PurchaseScreen(
+                        navHostController = navHostController,
                         listState = purchaseListState,
                         state = state,
                         action = action
                     )
 
                     1 -> SalesScreen(
+                        navHostController = navHostController,
                         listState = salesListState,
                         state = state,
                         action = action

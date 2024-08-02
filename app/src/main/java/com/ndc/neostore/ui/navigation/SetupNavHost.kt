@@ -24,6 +24,9 @@ import com.ndc.neostore.ui.feature.detailcheckout.DetailCheckoutViewModel
 import com.ndc.neostore.ui.feature.detailpurchase.DetailPurchaseEffect
 import com.ndc.neostore.ui.feature.detailpurchase.DetailPurchaseScreen
 import com.ndc.neostore.ui.feature.detailpurchase.DetailPurchaseViewModel
+import com.ndc.neostore.ui.feature.detailsales.DetailSalesEffect
+import com.ndc.neostore.ui.feature.detailsales.DetailSalesScreen
+import com.ndc.neostore.ui.feature.detailsales.DetailSalesViewModel
 import com.ndc.neostore.ui.feature.transaction.TransactionEffect
 import com.ndc.neostore.ui.feature.transaction.TransactionScreen
 import com.ndc.neostore.ui.feature.transaction.TransactionViewModel
@@ -137,7 +140,29 @@ fun SetupNavHost(
                 state = state,
                 effect = effect,
                 action = viewModel::onAction,
-                productId = getOrderId
+                orderId = getOrderId
+            )
+        }
+
+        composable(
+            route = NavRoute.DetailSalesScreen.route,
+            arguments = listOf(
+                navArgument(keyA) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            val viewModel = hiltViewModel<DetailSalesViewModel>()
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            val effect by viewModel.onEffect.collectAsStateWithLifecycle(initialValue = DetailSalesEffect.Empty)
+            val getOrderId = it.arguments?.getString(keyA) ?: ""
+
+            DetailSalesScreen(
+                navHostController = navHostController,
+                state = state,
+                effect = effect,
+                action = viewModel::onAction,
+                orderId = getOrderId
             )
         }
     }

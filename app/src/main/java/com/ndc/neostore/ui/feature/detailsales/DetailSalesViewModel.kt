@@ -1,46 +1,47 @@
-package com.ndc.neostore.ui.feature.detailpurchase
+package com.ndc.neostore.ui.feature.detailsales
 
 import androidx.lifecycle.viewModelScope
 import com.ndc.neostore.base.BaseViewModel
 import com.ndc.neostore.domain.CancelOrderUseCase
-import com.ndc.neostore.domain.ConfirmOderUseCase
-import com.ndc.neostore.domain.GetMyPurchaseOrderById
+import com.ndc.neostore.domain.GetMySalesOrderByIdUseCase
+import com.ndc.neostore.domain.ProcessOrderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailPurchaseViewModel @Inject constructor(
-    private val cancelOrderUseCase: CancelOrderUseCase,
-    private val confirmOrderUseCase: ConfirmOderUseCase,
-    private val getMyPurchaseOrderById: GetMyPurchaseOrderById
-) : BaseViewModel<DetailPurchaseState, DetailPurchaseAction, DetailPurchaseEffect>(
-    DetailPurchaseState()
+class DetailSalesViewModel @Inject constructor(
+    private val getMySalesOrderByIdUseCase: GetMySalesOrderByIdUseCase,
+    private val processOrderUseCase: ProcessOrderUseCase,
+    private val cancelOrderUseCase: CancelOrderUseCase
+) : BaseViewModel<DetailSalesState, DetailSalesAction, DetailSalesEffect>(
+    DetailSalesState()
 ) {
-    override fun onAction(action: DetailPurchaseAction) {
+
+    override fun onAction(action: DetailSalesAction) {
         when (action) {
-            is DetailPurchaseAction.OnBottomSheetVisibilityChange -> updateState {
+            DetailSalesAction.OnCancelOrder -> cancelOrder()
+            DetailSalesAction.OnProcessOrder -> processOrder()
+            is DetailSalesAction.OnBottomSheetVisibilityChange -> updateState {
                 copy(
                     bottomSheetVisible = action.visible
                 )
             }
 
-            DetailPurchaseAction.OnCancelOrder -> cancelOrder()
-            DetailPurchaseAction.OnConfirmOrder -> confirmOrder()
-            is DetailPurchaseAction.OnGetMyPurchaseOrderById -> getMyPurchaseById(action.orderId)
+            is DetailSalesAction.OnGetMySalesOrderById -> getMySalesOrderById(action.orderId)
         }
     }
 
-    private fun getMyPurchaseById(orderId: String) = viewModelScope.launch {
+    private fun getMySalesOrderById(id: String) = viewModelScope.launch {
         updateState { copy(loadingState = true) }
-        getMyPurchaseOrderById.invoke(
-            orderId = orderId,
+        getMySalesOrderByIdUseCase.invoke(
+            orderId = id,
             onSuccess = {
                 updateState {
                     copy(
-                        loadingState = false,
-                        mySalesOrderDto = it
+                        mySalesOrderDto = it,
+                        loadingState = false
                     )
                 }
             },
@@ -50,11 +51,11 @@ class DetailPurchaseViewModel @Inject constructor(
         )
     }
 
-    private fun confirmOrder() = viewModelScope.launch {
-        confirmOrderUseCase.invoke(
+    private fun processOrder() = viewModelScope.launch {
+        processOrderUseCase.invoke(
             orderId = state.value.mySalesOrderDto.orderId,
             onSuccess = {
-                onShowToast("Berhasil mengubah status pesanan")
+                onShowToast("Berhasil mengubah status")
             },
             onFailure = {
                 onShowToast(it)
@@ -76,8 +77,8 @@ class DetailPurchaseViewModel @Inject constructor(
 
     private fun onShowToast(message: String) = viewModelScope.launch {
         updateState { copy(loadingState = false) }
-        sendEffect(DetailPurchaseEffect.OnShowToast(message))
+        sendEffect(DetailSalesEffect.OnShowToast(message))
         delay(1000)
-        sendEffect(DetailPurchaseEffect.Empty)
+        sendEffect(DetailSalesEffect.Empty)
     }
 }

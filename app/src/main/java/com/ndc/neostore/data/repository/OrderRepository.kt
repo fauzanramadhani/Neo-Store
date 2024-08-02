@@ -10,6 +10,7 @@ import com.ndc.neostore.data.source.network.firebase.dto.MyPurchaseOrderDto
 import com.ndc.neostore.data.source.network.firebase.dto.MySalesOrderDto
 import com.ndc.neostore.data.source.network.firebase.dto.OrderDto
 import com.ndc.neostore.data.source.network.firebase.dto.OrderStatus
+import com.ndc.neostore.data.source.network.firebase.dto.ProductDto
 import com.ndc.neostore.data.source.network.firebase.dto.UserDto
 import com.ndc.neostore.utils.generateRandomId
 import javax.inject.Inject
@@ -204,5 +205,208 @@ class OrderRepository @Inject constructor() {
                     onFailure(error.message)
                 }
             })
+    }
+
+    fun getMyPurchaseOrderById(
+        orderId: String,
+        onSuccess: (MyPurchaseOrderDto) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("orders")
+            .child(orderId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val orderDto = snapshot.getValue(OrderDto::class.java) ?: OrderDto()
+                    databaseRef
+                        .child("users")
+                        .child(orderDto.buyerId)
+                        .get()
+                        .addOnSuccessListener { userSnapshot ->
+                            val userDto = userSnapshot.getValue(UserDto::class.java) ?: UserDto()
+                            val myPurchaseOrderDto = MyPurchaseOrderDto(
+                                orderId = orderDto.orderId,
+                                sellerId = orderDto.sellerId,
+                                sellerName = userDto.name,
+                                sellerProfileUrl = userDto.profileUrl,
+                                productId = orderDto.productId,
+                                productImageUrl = orderDto.productImageUrl,
+                                productName = orderDto.productName,
+                                productPrice = orderDto.productPrice,
+                                orderAmount = orderDto.orderAmount,
+                                adminFee = orderDto.adminFee,
+                                orderStatus = orderDto.orderStatus,
+                                createdAt = orderDto.createdAt
+                            )
+                            onSuccess(myPurchaseOrderDto)
+                        }.addOnFailureListener {
+                            onFailure(it.message.toString())
+                        }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    onFailure(error.message)
+                }
+
+            })
+    }
+
+    fun getMySalesOrderById(
+        orderId: String,
+        onSuccess: (MySalesOrderDto) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("orders")
+            .child(orderId)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val orderDto = snapshot.getValue(OrderDto::class.java) ?: OrderDto()
+                    databaseRef
+                        .child("users")
+                        .child(orderDto.buyerId)
+                        .get()
+                        .addOnSuccessListener { userSnapshot ->
+                            val userDto = userSnapshot.getValue(UserDto::class.java) ?: UserDto()
+                            val mySalesOrderDto = MySalesOrderDto(
+                                orderId = orderDto.orderId,
+                                buyerId = orderDto.buyerId,
+                                buyerName = userDto.name,
+                                buyerProfileUrl = userDto.profileUrl,
+                                productId = orderDto.productId,
+                                productImageUrl = orderDto.productImageUrl,
+                                productName = orderDto.productName,
+                                productPrice = orderDto.productPrice,
+                                orderAmount = orderDto.orderAmount,
+                                adminFee = orderDto.adminFee,
+                                orderStatus = orderDto.orderStatus,
+                                createdAt = orderDto.createdAt
+                            )
+                            onSuccess(mySalesOrderDto)
+                        }.addOnFailureListener {
+                            onFailure(it.message.toString())
+                        }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    onFailure(error.message)
+                }
+
+            })
+    }
+
+    fun processOrder(
+        orderId: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("orders")
+            .child(orderId)
+            .child("orderStatus")
+            .setValue(OrderStatus.Diproses)
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onFailure(it.message.toString())
+            }
+    }
+
+    fun confirmOrder(
+        orderId: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("orders")
+            .child(orderId)
+            .get()
+            .addOnSuccessListener { orderSnapshot ->
+                val orderDto = orderSnapshot.getValue(OrderDto::class.java) ?: OrderDto()
+                databaseRef
+                    .child("users")
+                    .child(orderDto.sellerId)
+                    .get()
+                    .addOnSuccessListener { userSnapshot ->
+                        val userDto = userSnapshot.getValue(UserDto::class.java) ?: UserDto()
+                        val updatedBalance =
+                            (orderDto.productPrice * orderDto.orderAmount) + userDto.balance
+                        val updates = mutableMapOf<String, Any>()
+                        updates["orders/$orderId/orderStatus"] = OrderStatus.Selesai
+                        updates["users/${orderDto.sellerId}/balance"] = updatedBalance
+                        databaseRef
+                            .updateChildren(updates)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    onSuccess()
+                                } else {
+                                    onFailure(task.exception?.message.toString())
+                                }
+                            }
+                    }
+                    .addOnFailureListener {
+                        onFailure(it.message.toString())
+                    }
+            }
+            .addOnFailureListener {
+                onFailure(it.message.toString())
+            }
+    }
+
+    fun cancelOrder(
+        orderId: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        databaseRef
+            .child("orders")
+            .child(orderId)
+            .get()
+            .addOnSuccessListener { orderSnapshot ->
+                val orderDto = orderSnapshot.getValue(OrderDto::class.java) ?: OrderDto()
+                databaseRef
+                    .child("product")
+                    .child(orderDto.productId)
+                    .get()
+                    .addOnSuccessListener { productSnapshot ->
+                        val productDto =
+                            productSnapshot.getValue(ProductDto::class.java) ?: ProductDto()
+                        databaseRef
+                            .child("users")
+                            .child(orderDto.buyerId)
+                            .get()
+                            .addOnSuccessListener { userSnapshot ->
+                                val userDto =
+                                    userSnapshot.getValue(UserDto::class.java) ?: UserDto()
+                                val updatedBalance =
+                                    userDto.balance + ((orderDto.productPrice * orderDto.orderAmount) + orderDto.adminFee)
+                                val updates = mutableMapOf<String, Any>()
+
+                                updates["orders/$orderId/orderStatus"] = OrderStatus.Dibatalkan
+                                updates["product/${orderDto.productId}/productStock"] =
+                                    productDto.productStock + orderDto.orderAmount
+                                updates["users/${orderDto.buyerId}/balance"] = updatedBalance
+
+                                databaseRef.updateChildren(updates)
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            onSuccess()
+                                        } else {
+                                            onFailure(task.exception?.message.toString())
+                                        }
+                                    }
+                            }
+                            .addOnFailureListener {
+
+                            }
+                    }
+                    .addOnFailureListener {
+                        onFailure(it.message.toString())
+                    }
+            }
+            .addOnFailureListener {
+                onFailure(it.message.toString())
+            }
     }
 }

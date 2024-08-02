@@ -17,5 +17,6 @@ data class OrderDto(
 enum class OrderStatus {
     Dibayar,
     Diproses,
-    Selesai
+    Selesai,
+    Dibatalkan
 }

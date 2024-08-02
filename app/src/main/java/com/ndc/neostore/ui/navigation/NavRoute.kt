@@ -20,4 +20,9 @@ sealed class NavRoute (val route: String) {
             orderId: String
         ) = "DETAIL_PURCHASE_SCREEN/$orderId"
     }
+    data object DetailSalesScreen : NavRoute("DETAIL_SALES_SCREEN/{$keyA}") {
+        fun navigateWithId(
+            orderId: String
+        ) = "DETAIL_SALES_SCREEN/$orderId"
+    }
 }
