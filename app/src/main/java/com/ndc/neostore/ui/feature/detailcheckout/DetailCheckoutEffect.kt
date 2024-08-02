@@ -5,4 +5,5 @@ sealed interface DetailCheckoutEffect {
         val message: String
     ) : DetailCheckoutEffect
     data object Empty: DetailCheckoutEffect
+    data object OnSuccess : DetailCheckoutEffect
 }

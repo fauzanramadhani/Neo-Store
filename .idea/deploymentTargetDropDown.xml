@@ -8,6 +8,9 @@
       <entry key="MyProductCardPreview">
         <State />
       </entry>
+      <entry key="TransactionCardPreview">
+        <State />
+      </entry>
       <entry key="app">
         <State />
       </entry>

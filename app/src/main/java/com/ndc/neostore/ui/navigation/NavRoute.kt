@@ -12,8 +12,12 @@ sealed class NavRoute (val route: String) {
     data object DetailCheckOutScreen : NavRoute("DETAIL_CHECKOUT_SCREEN/{$keyA}") {
         fun navigateWithId(
             productId: String
-        ): String {
-            return "DETAIL_CHECKOUT_SCREEN/$productId"
-        }
+        ) = "DETAIL_CHECKOUT_SCREEN/$productId"
+    }
+    data object TransactionScreen : NavRoute("TRANSACTION_SCREEN")
+    data object DetailPurchaseScreen : NavRoute("DETAIL_PURCHASE_SCREEN/{$keyA}") {
+        fun navigateWithId(
+            orderId: String
+        ) = "DETAIL_PURCHASE_SCREEN/$orderId"
     }
 }

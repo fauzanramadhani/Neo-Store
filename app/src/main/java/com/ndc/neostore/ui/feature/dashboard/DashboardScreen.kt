@@ -323,6 +323,7 @@ fun DashboardScreen(
             )
 
             2 -> AccountScreen(
+                navHostController = navHostController,
                 paddingValues = paddingValues,
                 listState = accountListState,
                 state = state,

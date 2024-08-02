@@ -55,12 +55,13 @@ class DetailCheckoutViewModel @Inject constructor(
         createProductUseCase.invoke(
             sellerUid = marketProductDto.sellerUid,
             productId = marketProductDto.productId,
+            productImageUrl = marketProductDto.productImageUrl,
             productName = marketProductDto.productName,
             productPrice = marketProductDto.productPrice,
             orderAmount = state.value.buyAmount,
             adminFee = state.value.adminFee,
             onSuccess = {
-                Log.e("DetailCheckVm", "Create order successfully")
+                onSuccess()
                 updateState { copy(loadingState = false) }
             },
             onFailure = {
@@ -68,6 +69,12 @@ class DetailCheckoutViewModel @Inject constructor(
                 updateState { copy(loadingState = false) }
             }
         )
+    }
+
+    private fun onSuccess() = viewModelScope.launch {
+        sendEffect(DetailCheckoutEffect.OnSuccess)
+        delay(1000)
+        sendEffect(DetailCheckoutEffect.Empty)
     }
 
     private fun onError(message: String) = viewModelScope.launch {

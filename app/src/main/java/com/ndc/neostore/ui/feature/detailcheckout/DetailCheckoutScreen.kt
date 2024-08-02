@@ -37,6 +37,7 @@ import com.ndc.neostore.R
 import com.ndc.neostore.ui.component.button.OutlinedButton
 import com.ndc.neostore.ui.component.dialog.DialogLoading
 import com.ndc.neostore.ui.component.topbar.TopBarSecondary
+import com.ndc.neostore.ui.navigation.NavRoute
 import com.ndc.neostore.ui.theme.Inter
 import com.ndc.neostore.utils.Toast
 import com.ndc.neostore.utils.toCurrency
@@ -63,6 +64,12 @@ fun DetailCheckoutScreen(
         when (effect) {
             DetailCheckoutEffect.Empty -> {}
             is DetailCheckoutEffect.OnShowToast -> Toast(ctx, effect.message).short()
+            DetailCheckoutEffect.OnSuccess -> navHostController.navigate(NavRoute.TransactionScreen.route) {
+                launchSingleTop = true
+                popUpTo(
+                    route = NavRoute.DashboardScreen.route
+                )
+            }
         }
     }
 

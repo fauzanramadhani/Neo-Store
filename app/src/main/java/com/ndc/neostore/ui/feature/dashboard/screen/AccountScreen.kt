@@ -11,13 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.ndc.neostore.R
 import com.ndc.neostore.ui.component.button.AccountButton
 import com.ndc.neostore.ui.feature.dashboard.DashboardAction
 import com.ndc.neostore.ui.feature.dashboard.DashboardState
+import com.ndc.neostore.ui.navigation.NavRoute
 
 @Composable
 fun AccountScreen(
+    navHostController: NavHostController,
     paddingValues: PaddingValues,
     listState: LazyListState,
     state: DashboardState,
@@ -48,7 +51,9 @@ fun AccountScreen(
                             .size(24.dp)
                     )
                 },
-            )
+            ) {
+                action(DashboardAction.OnBottomSheetVisibilityChange(true))
+            }
         }
         item {
             AccountButton(
@@ -62,7 +67,12 @@ fun AccountScreen(
                             .size(24.dp)
                     )
                 },
-            )
+            ) {
+                navHostController.navigate(NavRoute.TransactionScreen.route) {
+                    launchSingleTop = true
+                }
+            }
+
         }
         item {
             AccountButton(

@@ -10,6 +10,7 @@ class CreateProductUseCase @Inject constructor(
         sellerUid: String,
         productId: String,
         productName: String, // product name when making an order
+        productImageUrl: String,  // product image when making an order
         productPrice: Long, // product price when making an order
         orderAmount: Int,
         adminFee: Long,
@@ -18,6 +19,7 @@ class CreateProductUseCase @Inject constructor(
     ) = orderRepository.createOrder(
         sellerUid,
         productId,
+        productImageUrl,
         productName,
         productPrice,
         orderAmount,

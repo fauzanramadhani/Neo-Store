@@ -1,6 +1,7 @@
 package com.ndc.neostore.data.repository
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.database.DataSnapshot
@@ -171,8 +172,6 @@ class ProductRepository @Inject constructor() {
                                 .addOnCompleteListener { userSnapshot ->
                                     val userDto = userSnapshot.result.getValue(UserDto::class.java)
                                         ?: UserDto()
-                                    val currentIteration = ((index + 1).toLong())
-                                    if (currentIteration == 1L) productList.clear()
                                     productList.add(
                                         MarketProductDto(
                                             productId = productDto.productId,
@@ -187,11 +186,11 @@ class ProductRepository @Inject constructor() {
                                             createdAt = productDto.createdAt
                                         )
                                     )
-                                    if ((index + 1).toLong() == snapshot.childrenCount) {
-                                        val marketProductList = productList
+                                    if (productList.size.toLong() == snapshot.childrenCount) {
+                                        val sortedMarketProductList = productList
                                             .filter { it.sellerUid != uid }
                                             .sortedByDescending { it.createdAt }
-                                        onSuccess(marketProductList)
+                                        onSuccess(sortedMarketProductList)
                                     }
                                 }.addOnFailureListener {
                                     onFailure(it.message.toString())
